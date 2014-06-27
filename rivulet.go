@@ -1,7 +1,3 @@
-/* Just a simple echo chat server, heavily cribbed from from https://gist.github.com/drewolson/3950226
- *
- */
-
 package rivulet
 
 import (

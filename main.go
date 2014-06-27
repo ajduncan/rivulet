@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	rivulet.NewServer()
+	rivulet.NewRivulet()
 }

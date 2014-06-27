@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"net"
 )
 
@@ -25,6 +26,33 @@ type Channel struct {
 	incoming chan string
 	outgoing chan string
 }
+
+type Asset struct {
+	id		string
+	data	[]byte
+}
+
+type DB struct {
+	assets []Asset
+}
+
+func load_assets(path string) (*DB, error) {
+	files, _ := ioutil.ReadDir(path)
+
+	// suppose not every file can be read, this may create issues in our logic later.
+	db_assets := make([]Asset, len(files))
+	var index int
+	for _, f := range files {
+		filedata, err := ioutil.ReadFile(path + "/" + f.Name())
+		if err == nil {
+			a := &Asset{id: f.Name(), data: filedata}
+			db_assets[index] = *a
+		}
+		index++
+	}
+	return &DB{assets: db_assets}, nil
+}
+
 
 func (client *RivuletClient) Read() {
 	for {
@@ -105,7 +133,7 @@ func NewChannel(name string) *Channel {
 	return channel
 }
 
-func main() {
+func NewServer() {
 	channel := NewChannel("default")
 
 	listener, _ := net.Listen("tcp", ":6666")
@@ -114,5 +142,15 @@ func main() {
 		conn, _ := listener.Accept()
 		fmt.Println("Connection from: ", conn.RemoteAddr().String())
 		channel.joins <- conn
+	}
+}
+
+func main() {
+	DB, err := load_assets("./static/db")
+	if err == nil {
+		for _, a := range DB.assets {
+			fmt.Println(a.id)
+			fmt.Println(string(a.data))
+		}
 	}
 }

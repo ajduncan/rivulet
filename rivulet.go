@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
 )
 
 type RivuletClient struct {
@@ -141,6 +142,11 @@ func NewChannel(name string, db DB) *Channel {
 	return channel
 }
 
+func http_chat_handler(w http.ResponseWriter, r *http.Request, channel *Channel) {
+	fmt.Fprintf(w, "Debug: /%s", r.URL.Path[1:])
+	channel.Broadcast("Request URL received: " + r.URL.Path[1:] + "\n")
+}
+
 func NewServer() {
 	db := DB{}
 	err := db.load_assets("./static/db")
@@ -151,6 +157,11 @@ func NewServer() {
 
 	channel := NewChannel("default", db)
 	listener, _ := net.Listen("tcp", ":6666")
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http_chat_handler(w, r, channel)
+	})
+	go http.ListenAndServe(":8066", nil)
 
 	for {
 		conn, _ := listener.Accept()

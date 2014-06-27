@@ -21,6 +21,7 @@ type RivuletClient struct {
 
 type Channel struct {
 	id		 string
+	db       DB
 	clients  []*RivuletClient
 	joins    chan net.Conn
 	incoming chan string
@@ -34,6 +35,7 @@ type Asset struct {
 
 type DB struct {
 	assets map[string]Asset
+	connects chan net.Conn
 }
 
 func (db *DB) load_assets(path string) (error) {
@@ -81,6 +83,13 @@ func (channel *Channel) Broadcast(data string) {
 func (channel *Channel) Join(connection net.Conn) {
 	client := NewClient(connection)
 	channel.clients = append(channel.clients, client)
+
+	a, ok := channel.db.assets["motd.txt"]
+	if ok {
+		fmt.Println("Sending to client:" + string(a.data))
+		client.outgoing <- string(a.data)
+	}
+
 	go func() {
 		for {
 			channel.incoming <- <-client.incoming
@@ -118,9 +127,10 @@ func NewClient(connection net.Conn) *RivuletClient {
 	return client
 }
 
-func NewChannel(name string) *Channel {
+func NewChannel(name string, db DB) *Channel {
 	channel := &Channel{
 		id:		  name,
+		db:       db,
 		clients:  make([]*RivuletClient, 0),
 		joins:    make(chan net.Conn),
 		incoming: make(chan string),
@@ -133,8 +143,14 @@ func NewChannel(name string) *Channel {
 }
 
 func NewServer() {
-	channel := NewChannel("default")
+	db := DB{}
+	err := db.load_assets("./static/db")
+	if err != nil {
+		fmt.Println("Error reading assets.")
+		return
+	}
 
+	channel := NewChannel("default", db)
 	listener, _ := net.Listen("tcp", ":6666")
 
 	for {
@@ -161,11 +177,5 @@ func (db *DB) print_motd() {
 }
 
 func main() {
-	db := DB{}
-	err := db.load_assets("./static/db")
-	if err != nil {
-		fmt.Println("Error reading assets.")
-		return
-	}
-	db.print_motd()
+	NewServer()
 }

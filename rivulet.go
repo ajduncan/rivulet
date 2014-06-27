@@ -36,7 +36,7 @@ type DB struct {
 	assets map[string]Asset
 }
 
-func load_assets(path string) (*DB, error) {
+func (db *DB) load_assets(path string) (error) {
 	// initialize assets;
 	db_assets := make(map[string]Asset)
 
@@ -48,7 +48,8 @@ func load_assets(path string) (*DB, error) {
 			db_assets[f.Name()] = *a
 		}
 	}
-	return &DB{assets: db_assets}, nil
+	db.assets = db_assets
+	return nil
 }
 
 
@@ -143,7 +144,7 @@ func NewServer() {
 	}
 }
 
-func print_assets(db DB) {
+func (db *DB) print_assets() {
 	for key, value := range db.assets {
 		fmt.Println("Key: ", key)
 		fmt.Println("Value: ")
@@ -160,11 +161,11 @@ func (db *DB) print_motd() {
 }
 
 func main() {
-	fmt.Println("Reading assets...")
-	DB, err := load_assets("./static/db")
+	db := DB{}
+	err := db.load_assets("./static/db")
 	if err != nil {
 		fmt.Println("Error reading assets.")
 		return
 	}
-	DB.print_motd()
+	db.print_motd()
 }

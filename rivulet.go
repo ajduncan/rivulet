@@ -33,22 +33,20 @@ type Asset struct {
 }
 
 type DB struct {
-	assets []Asset
+	assets map[string]Asset
 }
 
 func load_assets(path string) (*DB, error) {
-	files, _ := ioutil.ReadDir(path)
+	// initialize assets;
+	db_assets := make(map[string]Asset)
 
-	// suppose not every file can be read, this may create issues in our logic later.
-	db_assets := make([]Asset, len(files))
-	var index int
+	files, _ := ioutil.ReadDir(path)
 	for _, f := range files {
 		filedata, err := ioutil.ReadFile(path + "/" + f.Name())
 		if err == nil {
 			a := &Asset{id: f.Name(), data: filedata}
-			db_assets[index] = *a
+			db_assets[f.Name()] = *a
 		}
-		index++
 	}
 	return &DB{assets: db_assets}, nil
 }
@@ -145,12 +143,28 @@ func NewServer() {
 	}
 }
 
-func main() {
-	DB, err := load_assets("./static/db")
-	if err == nil {
-		for _, a := range DB.assets {
-			fmt.Println(a.id)
-			fmt.Println(string(a.data))
-		}
+func print_assets(db DB) {
+	for key, value := range db.assets {
+		fmt.Println("Key: ", key)
+		fmt.Println("Value: ")
+		fmt.Println(string(value.data))
 	}
+}
+
+func (db *DB) print_motd() {
+	a, ok := db.assets["motd.txt"]
+	if ok {
+		fmt.Println("Message of the day:")
+		fmt.Println(string(a.data))
+	}
+}
+
+func main() {
+	fmt.Println("Reading assets...")
+	DB, err := load_assets("./static/db")
+	if err != nil {
+		fmt.Println("Error reading assets.")
+		return
+	}
+	DB.print_motd()
 }

@@ -1,5 +1,5 @@
 /* Just a simple echo chat server, heavily cribbed from from https://gist.github.com/drewolson/3950226
- * 
+ *
  */
 
 package main
@@ -12,7 +12,7 @@ import (
 )
 
 type RivuletClient struct {
-	id		 string
+	id       string
 	incoming chan string
 	outgoing chan string
 	reader   *bufio.Reader
@@ -20,7 +20,7 @@ type RivuletClient struct {
 }
 
 type Channel struct {
-	id		 string
+	id       string
 	db       DB
 	clients  []*RivuletClient
 	joins    chan net.Conn
@@ -29,16 +29,16 @@ type Channel struct {
 }
 
 type Asset struct {
-	id		string
-	data	[]byte
+	id   string
+	data []byte
 }
 
 type DB struct {
-	assets map[string]Asset
+	assets   map[string]Asset
 	connects chan net.Conn
 }
 
-func (db *DB) load_assets(path string) (error) {
+func (db *DB) load_assets(path string) error {
 	// initialize assets;
 	db_assets := make(map[string]Asset)
 
@@ -53,7 +53,6 @@ func (db *DB) load_assets(path string) (error) {
 	db.assets = db_assets
 	return nil
 }
-
 
 func (client *RivuletClient) Read() {
 	for {
@@ -115,7 +114,7 @@ func NewClient(connection net.Conn) *RivuletClient {
 	reader := bufio.NewReader(connection)
 
 	client := &RivuletClient{
-		id: connection.RemoteAddr().String(),
+		id:       connection.RemoteAddr().String(),
 		incoming: make(chan string),
 		outgoing: make(chan string),
 		reader:   reader,
@@ -129,7 +128,7 @@ func NewClient(connection net.Conn) *RivuletClient {
 
 func NewChannel(name string, db DB) *Channel {
 	channel := &Channel{
-		id:		  name,
+		id:       name,
 		db:       db,
 		clients:  make([]*RivuletClient, 0),
 		joins:    make(chan net.Conn),

@@ -2,7 +2,7 @@
  *
  */
 
-package main
+package rivulet
 
 import (
 	"bufio"

@@ -23,10 +23,10 @@ func (server *Server) Broadcast(data string) {
 func (server *Server) Join(connection net.Conn) {
 	client := NewClient(connection)
 	server.clients = append(server.clients, client)
+	fmt.Println("Connection from: ", connection.RemoteAddr().String())
 
 	a, ok := server.db.assets["motd.txt"]
 	if ok {
-		fmt.Println("Sending to client:" + string(a.data))
 		client.outgoing <- string(a.data)
 	}
 

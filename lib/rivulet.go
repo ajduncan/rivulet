@@ -11,15 +11,15 @@ func http_chat_handler(w http.ResponseWriter, r *http.Request, server *Server) {
 	server.Broadcast("Request URL received: " + r.URL.Path[1:] + "\n")
 }
 
-func NewRivulet() {
-	db := DB{}
-	err := db.load_assets("./static/db")
+func NewRivulet(pwd string) {
+	fmt.Println("Got working directory: " + pwd)
+	db, err := NewDatabase(pwd)
 	if err != nil {
-		fmt.Println("Error reading assets.")
+		fmt.Println("Error initializing database.")
 		return
 	}
 
-	server := NewServer("default", db)
+	server := NewServer("default", *db)
 	listener, _ := net.Listen("tcp", ":6666")
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,6 @@ func NewRivulet() {
 
 	for {
 		conn, _ := listener.Accept()
-		fmt.Println("Connection from: ", conn.RemoteAddr().String())
 		server.joins <- conn
 	}
 }

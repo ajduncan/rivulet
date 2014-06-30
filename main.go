@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
+	// where are we?
 	pwd, _ := os.Getwd()
+
+	// bootstrap a rivulet from here;
 	rivulet.NewRivulet(pwd)
 }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Rivulet</title>
+	</head>
+	<body>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+		<ul id="messages"></ul>
+		<form>
+			<input id="message">
+			<input type="submit" id="send" value="Send">
+		</form>
+
+		<script>
+			var ws = new WebSocket('ws://localhost:3000/sock');
+			ws.onopen = function() {
+				ws.onmessage = function(response) {
+					var newMessage = $('<li>').text(response.data);
+					$('#messages').append(newMessage);
+					$('#message').val('');
+				};
+
+				$('form').submit(function() {
+					ws.send($('#message').val());
+					return false;
+				});
+			}
+		</script>
+	</body>
+</html>

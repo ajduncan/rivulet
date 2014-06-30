@@ -2,33 +2,25 @@ package rivulet
 
 import (
 	"fmt"
-	"net"
-	"net/http"
 )
 
-func http_chat_handler(w http.ResponseWriter, r *http.Request, server *Server) {
-	fmt.Fprintf(w, "Debug: /%s", r.URL.Path[1:])
-	server.Broadcast("Request URL received: " + r.URL.Path[1:] + "\n")
-}
-
 func NewRivulet(pwd string) {
-	fmt.Println("Got working directory: " + pwd)
+	// we need a database to store things
 	db, err := NewDatabase(pwd)
 	if err != nil {
 		fmt.Println("Error initializing database.")
 		return
 	}
 
-	server := NewServer("default", *db)
-	listener, _ := net.Listen("tcp", ":6666")
+	// we need a raw server to pass things around
+	server := NewRivuletServer("default", *db)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http_chat_handler(w, r, server)
-	})
-	go http.ListenAndServe(":8066", nil)
+	// we need a web api thing.
+	api := NewAPI(server, db)
 
-	for {
-		conn, _ := listener.Accept()
-		server.joins <- conn
-	}
+	// setup the handlers
+	api.Init()
+
+	api.Run()
+	server.Run()
 }

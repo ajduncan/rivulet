@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-type Server struct {
+type RivuletServer struct {
 	id       string
 	db       DB
 	clients  []*RivuletClient
@@ -14,13 +14,13 @@ type Server struct {
 	outgoing chan string
 }
 
-func (server *Server) Broadcast(data string) {
+func (server *RivuletServer) Broadcast(data string) {
 	for _, client := range server.clients {
 		client.outgoing <- data
 	}
 }
 
-func (server *Server) Join(connection net.Conn) {
+func (server *RivuletServer) Join(connection net.Conn) {
 	client := NewClient(connection)
 	server.clients = append(server.clients, client)
 	fmt.Println("Connection from: ", connection.RemoteAddr().String())
@@ -37,7 +37,7 @@ func (server *Server) Join(connection net.Conn) {
 	}()
 }
 
-func (server *Server) Listen() {
+func (server *RivuletServer) Listen() {
 	go func() {
 		for {
 			select {
@@ -50,8 +50,17 @@ func (server *Server) Listen() {
 	}()
 }
 
-func NewServer(name string, db DB) *Server {
-	server := &Server{
+func (server *RivuletServer) Run() {
+	listener, _ := net.Listen("tcp", ":6666")
+
+	for {
+		conn, _ := listener.Accept()
+		server.joins <- conn
+	}
+}
+
+func NewRivuletServer(name string, db DB) *RivuletServer {
+	server := &RivuletServer{
 		id:       name,
 		db:       db,
 		clients:  make([]*RivuletClient, 0),

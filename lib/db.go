@@ -76,14 +76,13 @@ func NewDatabase(pwd string) (*DB, error) {
 		fmt.Println("Error reading database.")
 		return nil, err
 	}
-	*/
 
-/*
 	sql := `
 	create table foo (id integer not null primary key, name text);
 	delete from foo;
 	`
 	_, err = db.rdb.Exec(sql)
-*/
+	*/
+	
 	return db, nil
 }

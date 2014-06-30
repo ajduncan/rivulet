@@ -3,9 +3,9 @@ package rivulet
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"net"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 type Asset struct {
@@ -53,7 +53,7 @@ func (db *DB) print_motd() {
 }
 
 func (db *DB) initialize_db() error {
-	sqldb, err := sql.Open("sqlite3", db.root + "/static/db/rivulet.db")
+	sqldb, err := sql.Open("sqlite3", db.root+"/static/db/rivulet.db")
 	if err != nil {
 		fmt.Println("Error reading database.")
 		return err
@@ -71,18 +71,18 @@ func NewDatabase(pwd string) (*DB, error) {
 		return nil, err
 	}
 	/*
-	err = db.initialize_db()
-	if err != nil {
-		fmt.Println("Error reading database.")
-		return nil, err
-	}
+		err = db.initialize_db()
+		if err != nil {
+			fmt.Println("Error reading database.")
+			return nil, err
+		}
 
-	sql := `
-	create table foo (id integer not null primary key, name text);
-	delete from foo;
-	`
-	_, err = db.rdb.Exec(sql)
+		sql := `
+		create table foo (id integer not null primary key, name text);
+		delete from foo;
+		`
+		_, err = db.rdb.Exec(sql)
 	*/
-	
+
 	return db, nil
 }

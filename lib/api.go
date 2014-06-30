@@ -1,15 +1,15 @@
 package rivulet
 
 import (
+	"github.com/codegangsta/martini"
 	"html/template"
 	"net/http"
-	"github.com/codegangsta/martini"
 )
 
 type API struct {
 	server *RivuletServer
-	db *DB
-	http *martini.ClassicMartini
+	db     *DB
+	http   *martini.ClassicMartini
 }
 
 func http_index_handler(w http.ResponseWriter, r *http.Request, db *DB, server *RivuletServer) {
@@ -27,7 +27,7 @@ func (api *API) Run() {
 	go http.ListenAndServe(":8066", api.http)
 }
 
-func NewAPI(server *RivuletServer, rdb *DB) (*API) {
+func NewAPI(server *RivuletServer, rdb *DB) *API {
 	api := &API{server: server, db: rdb, http: martini.Classic()}
 
 	return api

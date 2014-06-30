@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"github.com/ajduncan/rivulet/lib"
+	"os"
 )
 
 func main() {
